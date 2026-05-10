@@ -23,6 +23,7 @@
 | 5 | **文件输出** | P0 | 调用 Skill 模板生成 Word/PDF |
 | 6 | **商务报价** | P1 | 复用现有 quotation-review Skill |
 | 7 | **虚拟法庭** | P1 | Claude 多角色扮演的庭审模拟 |
+| 8 | **使用手册** | P0 | 内嵌帮助中心 + 上下文帮助 + 导出 PDF 用户手册 |
 
 **二期**：日程提醒、利益冲突检查、审计日志、法律检索接入、客户门户、知识库、计费、财务。
 
@@ -310,6 +311,63 @@ response = client.messages.create(
 **模型**：`claude-opus-4-7`，启用 Extended Thinking。
 
 **二期**：接 TTS（如 ElevenLabs）做语音化身。
+
+### 3.8 使用手册（User Manual / Help Center）
+
+**双形态交付**：
+1. **系统内嵌帮助中心**：`/help` 路由，可全文检索、按模块导航、按角色推荐
+2. **可导出 PDF 手册**：一键生成《Fine Bridge 律所智能体使用手册 v{x.y}》供新人入职、培训、审计留档
+
+**功能清单**：
+- [x] **三层文档结构**：快速入门 / 模块详解 / 故障排查
+- [x] **角色化首页**：管理员、合伙人、律师、助理 各看到不同重点
+- [x] **上下文帮助**：每个业务页面右上角"?"图标 → 直达该页对应的手册章节
+- [x] **可搜索**：基于 Postgres 全文检索，关键词高亮
+- [x] **图文 + 视频**：截图、流程动图（GIF）、可选嵌入培训视频（二期）
+- [x] **版本与变更日志**：手册随系统版本同步发布；显示"本章节最近更新于 YYYY-MM-DD"
+- [x] **反馈机制**：每篇文末"本文是否对您有帮助？" → 写入反馈库
+- [x] **离线导出**：导出为 PDF / EPUB；可分模块或整本导出
+- [x] **Claude 驱动的智能助手**：手册顶栏内置"问问助手"按钮，调用 Claude 基于手册内容回答用户问题（与业务问答区分开）
+
+**数据来源**：
+- 手册内容存储在仓库 `docs/user-manual/` 下的 Markdown 文件
+- 应用启动时加载到数据库，写入 `help_articles` 表
+- 编辑时通过后台界面（仅管理员）或直接改 Markdown + 重新部署
+
+**技术实现**：
+| 层 | 实现 |
+| --- | --- |
+| 内容源 | Markdown + Front Matter（YAML 头标注 module/role/version） |
+| 渲染 | MDX（支持嵌入交互组件，如"试试看"沙盒） |
+| 检索 | Postgres `tsvector` + jieba 中文分词 |
+| 上下文帮助 | 业务页面声明 `helpKey="case.create"` → 帮助中心按 key 跳转 |
+| PDF 导出 | pandoc `md → pdf`（中文支持需配字体） |
+
+**目录结构（MVP）**：
+```
+docs/user-manual/
+├── 00-overview.md              # 系统总览
+├── 01-quick-start/
+│   ├── for-admin.md
+│   ├── for-lawyer.md
+│   └── for-assistant.md
+├── 02-modules/
+│   ├── account.md
+│   ├── case-management.md
+│   ├── case-files.md
+│   ├── ai-qa.md
+│   ├── document-generation.md
+│   ├── quotation.md
+│   └── mock-court.md
+├── 03-workflows/
+│   ├── new-case-end-to-end.md  # 从接案到结案完整走查
+│   └── litigation-checklist.md
+├── 04-faq.md
+├── 05-troubleshooting.md
+└── 99-changelog.md
+```
+
+**与 SKILL.md 的关系**：使用手册面向"系统使用"，SKILL.md 面向"AI 行为"。手册中的"AI 问答最佳实践"章节会摘录 SKILL.md 关键准则，提示用户如何提问能获得更好结果。
 
 ---
 
@@ -657,8 +715,11 @@ mc mirror --overwrite local/legal /Volumes/BackupSSD/minio/
 | Sprint 4 | 文件输出（模板 + 自由生成） | 1.5 周 |
 | Sprint 5 | 商务报价 | 1 周 |
 | Sprint 6 | 虚拟法庭 | 1.5 周 |
-| Sprint 7 | UAT + 加固 + 培训 | 1 周 |
-| **合计** | **MVP 上线** | **11 周** |
+| Sprint 7 | 使用手册（内嵌帮助 + PDF 导出 + 上下文帮助） | 1 周 |
+| Sprint 8 | UAT + 加固 + 培训交付 | 1.5 周 |
+| **合计** | **MVP 上线** | **12.5 周** |
+
+> **说明**：使用手册的 Markdown 内容编写在 Sprint 1-6 期间**与各模块开发并行**完成（每个模块 Owner 同步产出对应章节），Sprint 7 集中做帮助中心 UI、检索、PDF 导出和上下文跳转。
 
 ---
 
@@ -706,6 +767,10 @@ mc mirror --overwrite local/legal /Volumes/BackupSSD/minio/
 | 庭审准备模板 | `templates/legal-trial-preparation.md` |
 | 案件台账模板 | `templates/legal-case-tracking.md` |
 | 结案归档模板 | `templates/legal-case-closure.md` |
+| 项目需求说明 | `docs/requirements.md` |
+| 验收与培训计划 | `docs/acceptance-and-training.md` |
+| 文档索引 | `docs/README.md` |
+| 用户手册（编写中） | `docs/user-manual/` |
 
 ---
 
