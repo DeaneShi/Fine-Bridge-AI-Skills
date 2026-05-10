@@ -472,7 +472,37 @@ response = client.messages.create(
 
 **业务线**：③ 非诉法律项目。**业主以并购非诉见长，本模块为核心差异化能力**。
 
-#### 3.7B.1 项目类型（首批支持）
+#### 3.7B.0 模块定位（核心哲学，业主明确）
+
+> "非诉项目，律师的作用在于**理解并优化交易的商业实质**，清晰界定并完善我方的**商业诉求**，通过律师服务，促进委托人的**商业利益**得以实现。"
+
+本模块**不是法律文档工厂**——它是 **"项目大脑（Project Brain）"**：帮助律师管理一笔交易从商业诉求到商业利益实现的全流程。文书（SPA、配套文本等）是工作成果的**固化形式**，不是工作的核心。
+
+**律师的工作模式（业主明确的四阶段）**：
+
+```
+A 客户沟通讨论 → B 多轮次对手方谈判 → C 谈判成果书面固化 → D 程序性流程闭环
+   （理解商业实质     （在我方诉求与对方       （以法律文本               （工商、税务、外汇、
+   清晰商业诉求）       诉求之间寻找平衡）       锁定双方共识）             反垄断申报等）
+```
+
+模块按这四阶段组织功能，每阶段都有 AI 辅助：
+
+| 阶段 | 律师做什么 | 系统支持 | AI 价值 |
+| --- | --- | --- | --- |
+| **A 商业诉求** | 与客户多轮访谈，把商业目标拆解为可执行的法律请求 | 商业诉求清单、利益相关方分析、交易结构选项分析、立场矩阵 | 帮律师把模糊商业诉求结构化、提示遗漏维度、对比交易架构利弊 |
+| **B 谈判管理** | 多轮次与对方谈判，跟踪议题进展，记录策略与让步 | 议题追踪器、谈判轮次管理、立场矩阵、会议纪要、策略 playbook | 起草发问提纲、风险点识别、对方立场分析、让步路径建议 |
+| **C 成果固化** | 把谈判共识落到 SPA、SHA、章程、披露函等文本 | 议题 ↔ 条款映射、文本版本控制、条款级追溯 | 起草条款、红黑线对比、条款合规与异常识别、披露函生成 |
+| **D 程序闭环** | 完成工商变更、税务、外汇、反垄断申报等程序 | 程序清单（按交易类型）、办理状态、凭证归档 | 程序所需文件清单生成、申请书起草、监管时点提醒 |
+
+**贯穿四阶段的横向能力**：
+- 项目档案与阶段管理
+- 客户决策记录（每个关键决策都留痕，含授权范围与决定）
+- 法律尽职调查（**为商业诉求与谈判提供事实基础**，不是孤立产物）
+- 项目交付物追踪（dashboard 视图）
+- 项目预算与计费
+
+**项目类型（首批支持）**：
 - **股权并购（Equity M&A）** ⭐ 业主主战场，作为首批落地的标杆模板
 - 资产收购 / 业务收购
 - 私募融资 / 股权融资
@@ -482,90 +512,230 @@ response = client.messages.create(
 - 跨境交易
 - 其他
 
-每种项目类型有独立的项目阶段配置、尽调清单模板、交付物清单。
+每种项目类型有独立的阶段配置、商业诉求维度、尽调清单、交付物清单、程序清单模板。
 
-#### 3.7B.2 项目阶段（以 M&A 为例）
+**项目阶段（v2.1 调整以贴合四工作阶段）**：
 ```
-立项 → 尽调 → 谈判与起草 → 签约 → 交割 → 交割后整合
+立项 → 商业诉求确认 → 尽调 → 谈判 → 成果固化 → 签约 → 交割 → 程序闭环 → 交割后整合
+        (阶段 A)              (阶段 B) (阶段 C)         (阶段 D)
 ```
-- 每个阶段都有标准交付物 checklist
+- 每个阶段都有标准交付物 checklist 与"过门检查"
 - 项目看板（Kanban）按阶段聚合所有事项与文件
-- 阶段切换需主办律师确认（避免遗漏交付物）
+- 阶段切换需主办律师确认（避免遗漏关键产出物）
 
-#### 3.7B.3 尽调清单（DD Checklist，业主明确要求）
-- **尽调前**自动生成完整清单（按项目类型预置模板）
-- 清单结构（M&A 模板示例）：
-  - 公司基本资料：营业执照、章程、股东名册、组织结构图
-  - 重大合同：客户合同、供应商合同、租赁合同、贷款合同、关联交易
-  - 财产权属：不动产、知产、动产
-  - 员工与劳动：劳动合同、社保、工会、员工持股
-  - 税务与海关
-  - 合规与诉讼：行政处罚、未决诉讼、潜在纠纷
-  - 资质与许可：经营资质、特许经营、行业准入
-- 每项清单条目状态：未发出 / 已发出 / 已收到 / 已审阅 / 有问题待跟进 / 已关闭
-- 与对方接口人协作：导出对方版（隐藏内部备注）发对方填写；可上传对方回应
-- 自动统计完成进度（用于阶段切换判断）
+---
 
-#### 3.7B.4 尽调过程管理
-- 资料请求函生成与发送
-- 收到资料 → 上传到项目卷宗 → OCR + 全文索引
-- 资料审阅：每项资料填写"主要发现 / 风险等级 / 建议"
-- 现场访谈管理：访谈提纲、访谈记录、与清单条目关联
-- 问题清单：尽调过程中发现的问题，分配跟进人
+### 阶段 A：商业诉求拆解（业主新增 ⭐ 律师价值核心）
 
-#### 3.7B.5 法律尽职调查报告（业主明确要求）
-- 结构化模板：
-  - 执行摘要（关键发现 + 总体风险评估）
-  - 调查范围与方法
-  - 公司基本情况
-  - 重大事项（按 §3.7B.3 各分类逐一报告）
-  - 主要风险与建议
-  - 附件清单
-- AI 辅助生成：基于已审阅的尽调资料，自动生成报告初稿
-- 律师精修 + 合伙人审核
-- 输出：PDF + Word，含交易方水印（防外泄）
+#### 3.7B.A1 商业诉求清单（Commercial Demands List）
 
-#### 3.7B.6 法律意见书（业主明确要求）
-- 项目法律意见、专项法律意见、合规法律意见
-- 信息收集 → AI 辅助生成 → 律师精修 → 出具
-- 与尽调报告联动：可引用尽调发现作为论证依据
+> 律师与客户多轮访谈后，把客户脑海里"我想买（卖）这家公司、要 XXX 价格、希望 XXX 条件"等模糊期望，拆解为**结构化、可谈判、可法律实现**的诉求清单。
 
-#### 3.7B.7 交易文本（业主明确要求"全套"）
-- 模板库（M&A 标准）：
-  - 框架协议 / 意向书（Term Sheet / LOI / MOU）
-  - 股权转让协议（SPA）
-  - 增资协议
-  - 股东协议（Shareholders Agreement）
-  - 公司章程修订
-  - 资产收购协议
-  - 业务转让协议
-- 模板字段化（当事人、标的、对价、对赌、保证、不竞争、违约责任）
+**字段**：
+- 诉求编号 / 诉求标题
+- 诉求描述（客户原话 + 律师改写后的法律可执行版）
+- 维度：交易结构 / 价款与支付 / 控制权与治理 / 陈述与保证 / 赔偿与限额 / 过渡期安排 / 不竞争与不挖角 / 知识产权 / 关键人员 / 政府审批 / 退出机制 / 其他
+- **优先级**：必须达成（Must）/ 期望达成（Should）/ 可让步（Nice to Have）/ 可放弃（Walk-Away If Lost）
+- **底线 / 目标 / 理想**（三档定位）
+- 法律实现路径：要在哪份文本的哪一条款中体现
+- 风险与依赖：是否依赖某项尽调发现、是否需要政府审批配合
+- 状态：待澄清 / 已确认 / 谈判中 / 已落地 / 放弃
+- 客户决策时点 / 决策人 / 决策依据
+
+**功能**：
+- AI 辅助拆解：律师粘贴客户访谈记录或邮件 → AI 抽取潜在商业诉求 → 律师审核入库
+- AI 辅助"维度提醒"：对比该项目类型的标准诉求清单，提示遗漏维度
+- AI 辅助"路径映射"：建议每条诉求应落在哪份文本、哪个条款类型上
+
+#### 3.7B.A2 交易结构选项分析
+
+> 同一个商业目标可能有多种交易结构（股权 vs 资产收购、一步 vs 分阶段、含/不含对赌等），不同架构对客户的税务、风险、控制权影响不同。
+
+- 选项 CRUD：每个候选结构 + 优劣对比表
+- AI 辅助生成对比矩阵（税务影响、合规复杂度、交易速度、风险分担、退出灵活性）
+- 客户决策记录：选择哪个结构、决策依据
+
+#### 3.7B.A3 立场矩阵（Position Matrix）
+
+把诉求清单转化为可在谈判桌上使用的"我方立场表"。
+
+| 议题 | 我方理想 | 我方目标 | 我方底线 | 预测对方立场 | ZOPA | 让步换取条件 |
+| --- | --- | --- | --- | --- | --- | --- |
+
+---
+
+### 阶段 B：谈判过程管理（业主新增 ⭐ "多轮次地和交易对手方进行沟通谈判"）
+
+#### 3.7B.B1 谈判轮次管理（Negotiation Rounds）
+
+每一轮谈判都要留痕：
+
+- 轮次编号（R1、R2、R3...）
+- 时间 / 地点 / 形式（视频 / 现场 / 邮件 / 电话）
+- 我方参与人 / 对方参与人
+- 议题清单（本轮讨论的）
+- 会议纪要：谈拢的、悬而未决的、新出现的、恶化的
+- 当轮立场变化（哪些议题立场松动 / 哪些固化）
+- 下一步行动与负责人
+- 关联文件（会议邀请、对方提案、本方反提案）
+
+#### 3.7B.B2 议题追踪器（Issue Tracker）
+
+> 一笔 M&A 交易往往有 30-100 个议题在谈，必须有专门的追踪器。
+
+**字段**（每个议题一条）：
+- 议题编号 / 标题 / 描述
+- 关联商业诉求（来自 §3.7B.A1）
+- 类别（与诉求维度对齐）
+- 状态：未提出 / 提出中 / 谈判中 / 双方一致 / 搁置 / 放弃
+- 我方当前立场 / 对方当前立场 / 差距分析
+- 谈判轮次足迹（在哪几轮中讨论过、各轮变化）
+- 优先级 / 紧迫度
+- 责任律师
+- 落到文本：哪份文本的哪一条款（关联到 §3.7B.C1）
+- 解决日期
+
+**视图**：Kanban 看板 / 优先级仪表盘 / 议题演变时间线。
+
+#### 3.7B.B3 谈判策略与让步管理
+
+- 让步路径预案：在 议题 X 上让步以换取议题 Y 的进展
+- 红线提醒：尝试触碰我方底线时系统提示
+- 谈判 playbook：常用让步话术、僵局突破策略（基于知识库沉淀）
+
+#### 3.7B.B4 客户决策记录（Client Decision Log）
+
+> 每个关键决策都必须留痕——这既是律师执业留底，也是客户授权链。
+
+- 决策编号 / 时间 / 决策人（客户方姓名 / 职务）
+- 决策事项（链接到具体议题 / 文本条款）
+- 决策内容
+- 决策依据（律师建议 / 商业考虑 / 客户原因）
+- 授权范围（律师可在 ±X% 范围内自行决定 / 必须客户拍板）
+- 留痕方式：会议纪要 / 邮件确认 / 微信截图 / 客户书面授权
+- 关联文件
+
+---
+
+### 阶段 C：成果固化（"将相关的谈判成果以书面的形式予以固定"）
+
+#### 3.7B.C1 议题 ↔ 条款映射
+
+> 谈判共识必须**清晰落到文本的具体条款**，每条款必须能追溯到对应议题与商业诉求。
+
+- 文本（如 SPA）的每个条款建立对应关系：
+  - 来源议题（链接到 §3.7B.B2）
+  - 来源商业诉求（链接到 §3.7B.A1）
+  - 谈判轮次足迹（哪几轮、什么变化）
+  - 客户决策记录（链接到 §3.7B.B4）
+- **文本闭合检查**：是否所有"双方一致"议题都已写入文本？是否有文本条款无对应议题？
+
+#### 3.7B.C2 交易文本起草与版本管理（业主明确要求"全套"）
+
+- 模板库（M&A 标准）：意向书 / Term Sheet、SPA、增资协议、SHA、章程修订、资产收购协议、业务转让协议
+- 字段化模板：当事人、标的、对价、对赌、保证、不竞争、违约责任
 - 版本管理：与对方往来修订留痕；红黑线对比视图
-- 关键条款审查：AI 辅助识别遗漏 / 异常条款
+- AI 异常识别：遗漏条款、不寻常约定
 
-#### 3.7B.8 配套文本（业主明确要求）
-- 公司决议：股东会决议、董事会决议、监事会决议
-- 政府文件：工商变更登记申请、外汇登记、反垄断申报
+#### 3.7B.C3 配套文本（业主明确要求）
+
+- 公司决议：股东会、董事会、监事会
+- 政府文件：工商变更登记申请、外汇登记、反垄断申报、其他备案
 - 通知与同意函：股东放弃优先购买权同意书、债权人通知、银行同意函
 - 特殊条款协议：对赌协议、回购协议、锁箱协议、过渡期协议
-- 信息披露文件
-- 保密协议（NDA）
-- 独家谈判协议
+- 披露函（Disclosure Letter）
+- 保密协议（NDA）、独家谈判协议、Walk-away Agreement
 
-#### 3.7B.9 项目交付物追踪
-- 项目级交付物清单（dashboard）：每项交付物的状态（未开始 / 进行中 / 待审核 / 已交付）
+---
+
+### 阶段 D：程序性流程闭环（业主新增 ⭐ "完成相关的程序性流程，如工商税务手续等"）
+
+#### 3.7B.D1 程序清单生成（按交易类型）
+
+> 程序闭环 = 交易真正完成。律师必须把"签约"和"交付"分清——签约只是开始，交割与程序完成才是终点。
+
+**程序模板（M&A 标准清单）**：
+
+| # | 程序 | 触发条件 | 申请人 | 办理机关 | 所需文件 | 周期 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 工商变更登记（股东 / 法定代表人 / 注册资本 / 章程） | 签约后 | 标的公司 | 市场监督管理局 | 决议、章程修正案、SPA、新股东身份证明 | 3-7 工作日 |
+| 2 | 税务备案与个税申报（股权转让所得税） | 股权转让 | 转让方 / 受让方 | 主管税务机关 | SPA、评估报告、计税资料 | 7-15 日 |
+| 3 | 外汇登记（涉外资） | 涉境外股东 | 标的公司 | 国家外汇管理局 | 商务部 / 发改委备案、外汇登记申请、相关文件 | 视情况 |
+| 4 | 反垄断经营者集中申报 | 达申报标准 | 收购方 | 国家市场监督管理总局 | 申报书、协议、营业额证明 | 立案后 30-180 日 |
+| 5 | 行业主管部门审批 | 行业准入 | 标的公司 / 收购方 | 行业主管部门（金融、教育、医疗、电信等） | 视行业 | 视行业 |
+| 6 | 国资监管审批 | 涉国资 | 转让方 | 国资委 / 财政厅 | 评估、产权交易、批复 | 视情况 |
+| 7 | 章程备案、组织机构、银行预留印鉴变更 | 工商变更后 | 标的公司 | 银行 / 相关部门 | 新章程、营业执照、决议 | 1-2 周 |
+| 8 | 行业资质 / 许可证变更 | 影响许可的变更 | 标的公司 | 相关许可机关 | 视许可类型 | 视情况 |
+
+**功能**：
+- 系统按项目类型自动生成程序清单，律师按需勾选适用项
+- 每项程序：状态（未启动 / 准备中 / 已申请 / 在办 / 已完成 / 阻塞）、负责人、计划日期、实际日期、办理凭证
+- 程序所需文件清单：与项目卷宗联动，缺失文件自动标红
+- 关键时点提醒：申报前 N 日提醒
+- 程序完成 → 上传凭证（受理回执、批复、新营业执照、税务回执等）
+
+#### 3.7B.D2 程序申请书与办理文件生成
+
+- 工商变更登记申请书（股东、法定代表人、注册资本、章程等）
+- 税务备案表
+- 外汇登记申请
+- 反垄断经营者集中申报书
+- 行业准入审批申请
+
+#### 3.7B.D3 程序闭环看板
+
+- 项目维度：每笔交易的程序进度一览
+- 律师维度：手头所有项目的程序待办
+- 风险维度：超期未办、文件缺失的程序
+
+---
+
+### 横向能力（贯穿四阶段）
+
+#### 3.7B.X1 法律尽职调查（业主明确要求）
+
+> **重要重定位**：尽调不是孤立产物，而是为**商业诉求拆解（A）和谈判（B）提供事实基础**——发现的风险点会直接转化为商业诉求（如调价、特殊陈述与保证、保留款）。
+
+- 立项后或商业诉求确认后启动
+- 清单结构（M&A 模板示例）：公司基本资料、重大合同、财产权属、员工与劳动、税务与海关、合规与诉讼、资质与许可、关联方、历史融资、对赌
+- 每项条目状态：未发出 / 已发出 / 已收到 / 已审阅 / 有问题待跟进 / 已关闭
+- 与对方接口人协作：导出对方版（隐藏内部备注）
+- **尽调发现 → 商业诉求 / 议题转化机制**：每个高风险发现一键转为商业诉求或谈判议题
+- 现场访谈管理：访谈提纲、访谈记录、与清单条目关联
+- 资料审阅：每项资料填写"主要发现 / 风险等级 / 建议"
+
+#### 3.7B.X2 法律尽职调查报告（业主明确要求）
+
+- 结构化模板：执行摘要 / 调查范围与方法 / 公司基本情况 / 重大事项分类报告 / 主要风险与建议 / 附件
+- AI 辅助生成：基于已审阅的尽调资料与已登记的尽调发现，自动生成报告初稿
+- 律师精修 + 合伙人审核
+- 输出：PDF + Word，含保密水印
+
+#### 3.7B.X3 法律意见书（业主明确要求）
+
+- 项目法律意见、专项法律意见、合规法律意见
+- 信息收集 → AI 辅助生成 → 律师精修 → 出具
+- 与尽调报告 / 商业诉求 / 谈判议题联动，可作为论证依据
+
+#### 3.7B.X4 项目交付物追踪
+
+- 项目级 dashboard：每项交付物的状态（未开始 / 进行中 / 待审核 / 已交付）
+- 阶段切换的"过门检查"：必交付物未完成时阻止进入下一阶段
 - 客户视图（受限）：客户可看到项目进度、已交付清单、待客户配合事项
 - 交付物归档：项目结束自动打包 ZIP 归档（可作客户最终交付包）
 
-#### 3.7B.10 项目数据看板
+#### 3.7B.X5 项目数据看板
+
 - 在办项目数 / 项目金额 / 各阶段分布
 - 主办律师项目工作量
-- 项目周期分析（同类项目平均耗时，识别瓶颈阶段）
+- 项目周期分析（同类项目平均耗时）
+- **谈判轮次中位数、议题平均解决周期**（v2.1 新增）
+- **程序闭环耗时分布**（v2.1 新增）
 
 **与其他模块的关系**：
 - **客户与卷宗**：项目共享客户档案与卷宗体系
-- **智能问答**：项目级 AI 问答（上下文限定为项目卷宗与尽调发现）
-- **文件输出**：尽调报告、法律意见、交易文本、配套文本均走文件输出
+- **智能问答**：项目级 AI 问答（上下文限定为项目卷宗、尽调发现、商业诉求、谈判议题）
+- **文件输出**：尽调报告、法律意见、交易文本、配套文本、程序申请文件均走文件输出
 - **商务模块**：项目报价、合同、收款均走商务模块
 - **法律顾问模块**：顾问单位的项目可在两个模块间联动
 
@@ -1097,6 +1267,175 @@ CREATE TABLE advisor_queries (
   status TEXT DEFAULT 'open',                -- open/in_progress/answered/closed
   service_record_id UUID REFERENCES advisor_services(id)
 );
+
+-- ============================================================
+-- 非诉项目 v2.1 新增：商业诉求 / 谈判 / 客户决策 / 程序闭环
+-- ============================================================
+
+-- 商业诉求清单（阶段 A）
+CREATE TABLE commercial_demands (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  demand_no TEXT NOT NULL,                   -- D1, D2, D3...
+  title TEXT NOT NULL,
+  description_raw TEXT,                      -- 客户原话
+  description_legal TEXT,                    -- 律师改写后的法律可执行版
+  dimension TEXT NOT NULL,                   -- structure/price/control/reps/indemnity/transition/non_compete/ip/key_person/approvals/exit/other
+  priority TEXT NOT NULL,                    -- must/should/nice/walk_away
+  walk_away_position TEXT,                   -- 底线
+  target_position TEXT,                      -- 目标
+  ideal_position TEXT,                       -- 理想
+  legal_implementation_path TEXT,            -- 落到哪份文本哪一条款
+  depends_on_dd_finding_ids UUID[],
+  depends_on_approvals TEXT,
+  status TEXT DEFAULT 'draft',               -- draft/confirmed/negotiating/landed/abandoned
+  client_decision_id UUID,                   -- 关联客户决策记录
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX idx_demands_project ON commercial_demands(project_id);
+CREATE INDEX idx_demands_priority ON commercial_demands(priority);
+
+-- 交易结构选项分析（阶段 A）
+CREATE TABLE structure_options (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  option_name TEXT NOT NULL,                 -- 如 "一步股权收购"、"先增资后转让"
+  description TEXT,
+  pros JSONB,                                -- 优势列表
+  cons JSONB,                                -- 劣势列表
+  tax_impact TEXT,
+  compliance_complexity TEXT,                -- low/medium/high
+  estimated_timeline TEXT,
+  is_selected BOOLEAN DEFAULT FALSE,
+  selection_rationale TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 立场矩阵（阶段 A，常按议题展开）
+CREATE TABLE position_matrix (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  issue_id UUID,                             -- 关联议题
+  ideal TEXT,
+  target TEXT,
+  walk_away TEXT,
+  predicted_counterparty_position TEXT,
+  zopa TEXT,                                 -- Zone of Possible Agreement
+  concession_trade TEXT,                     -- 让步换取条件
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 谈判轮次（阶段 B）
+CREATE TABLE negotiation_rounds (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  round_no INT NOT NULL,                     -- R1, R2...
+  scheduled_at TIMESTAMPTZ,
+  location TEXT,
+  format TEXT,                               -- video/onsite/email/phone
+  our_attendees TEXT[],
+  counterparty_attendees TEXT[],
+  agenda TEXT,
+  minutes TEXT,                              -- 会议纪要
+  outcome_summary TEXT,                      -- 当轮总结
+  next_actions TEXT,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (project_id, round_no)
+);
+
+-- 议题追踪器（阶段 B）
+CREATE TABLE negotiation_issues (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  issue_no TEXT NOT NULL,                    -- I1, I2...
+  title TEXT NOT NULL,
+  description TEXT,
+  related_demand_id UUID REFERENCES commercial_demands(id),
+  category TEXT,                             -- 与诉求维度对齐
+  status TEXT DEFAULT 'not_raised',          -- not_raised/proposed/negotiating/agreed/parked/abandoned
+  our_current_position TEXT,
+  counterparty_current_position TEXT,
+  gap_analysis TEXT,
+  priority TEXT,
+  urgency TEXT,
+  responsible_lawyer_id UUID REFERENCES users(id),
+  resolved_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (project_id, issue_no)
+);
+CREATE INDEX idx_issues_project_status ON negotiation_issues(project_id, status);
+
+-- 议题在某轮谈判中的状态变化（多对多）
+CREATE TABLE issue_round_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  issue_id UUID REFERENCES negotiation_issues(id) ON DELETE CASCADE,
+  round_id UUID REFERENCES negotiation_rounds(id) ON DELETE CASCADE,
+  status_before TEXT,
+  status_after TEXT,
+  position_change TEXT,                      -- 描述当轮我方/对方立场变化
+  notes TEXT,
+  recorded_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 客户决策记录（贯穿四阶段）
+CREATE TABLE client_decisions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  decision_no TEXT NOT NULL,                 -- DEC-1, DEC-2...
+  decided_at TIMESTAMPTZ NOT NULL,
+  decided_by_external TEXT,                  -- 客户方姓名 / 职务
+  subject TEXT NOT NULL,                     -- 决策事项
+  related_demand_id UUID REFERENCES commercial_demands(id),
+  related_issue_id UUID REFERENCES negotiation_issues(id),
+  related_clause TEXT,                       -- 关联文本条款
+  decision_content TEXT NOT NULL,
+  rationale TEXT,
+  authority_scope TEXT,                      -- 律师授权范围
+  evidence_type TEXT,                        -- meeting_minutes/email/wechat/written_authorization
+  evidence_file_id UUID REFERENCES case_files(id),
+  recorded_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 议题 ↔ 条款映射（阶段 C）
+CREATE TABLE issue_clause_mapping (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  issue_id UUID REFERENCES negotiation_issues(id) ON DELETE CASCADE,
+  document_id UUID REFERENCES transaction_documents(id) ON DELETE CASCADE,
+  clause_label TEXT,                         -- 第 X 条第 Y 款
+  clause_excerpt TEXT,                       -- 条款摘录
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (issue_id, document_id, clause_label)
+);
+
+-- 程序性流程清单（阶段 D）
+CREATE TABLE procedural_filings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  filing_type TEXT NOT NULL,                 -- aic_change/tax_filing/forex/antitrust/industry_approval/soe_approval/license_change/bank_change/other
+  title TEXT NOT NULL,
+  authority TEXT,                            -- 办理机关
+  trigger_condition TEXT,                    -- 触发条件
+  applicant TEXT,                            -- 申请人（标的公司 / 转让方 / 收购方）
+  required_files JSONB,                      -- 所需文件清单
+  expected_duration_days INT,
+  planned_start_date DATE,
+  planned_end_date DATE,
+  actual_start_date DATE,
+  actual_end_date DATE,
+  status TEXT DEFAULT 'not_started',         -- not_started/preparing/submitted/in_progress/completed/blocked
+  responsible_lawyer_id UUID REFERENCES users(id),
+  receipt_file_id UUID REFERENCES case_files(id),
+  approval_file_id UUID REFERENCES case_files(id),
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX idx_filings_project_status ON procedural_filings(project_id, status);
 ```
 
 ### 4.3 加密策略
@@ -1202,23 +1541,55 @@ data: {"usage":{"input_tokens":1234,"output_tokens":567,"cache_read_input_tokens
 ### 5.8 非诉法律项目模块
 | Method | Path | 说明 |
 | --- | --- | --- |
+| **项目档案** | | |
 | GET | `/projects?type=&status=&lead=` | 项目列表 |
-| POST | `/projects` | 创建项目（指定类型自动配置阶段与交付物模板） |
-| GET | `/projects/{id}` | 项目详情（聚合：阶段 / 尽调 / 文本 / 交付物） |
-| PATCH | `/projects/{id}/phase` | 切换项目阶段 |
-| POST | `/projects/{id}/dd-checklists/generate` | 按项目类型生成尽调清单 |
-| GET | `/projects/{id}/dd-checklists/{cl_id}` | 清单详情 |
-| PATCH | `/dd-items/{id}` | 更新尽调条目状态 |
-| POST | `/dd-items/{id}/responses` | 上传对方回应 |
-| GET | `/projects/{id}/dd-checklists/{cl_id}/export` | 导出对方版（脱敏） |
-| POST | `/projects/{id}/dd-findings` | 登记尽调发现 |
-| POST | `/projects/{id}/dd-report/generate` | 生成尽调报告（基于发现） |
+| POST | `/projects` | 创建项目（指定类型自动配置阶段、诉求维度、尽调清单、程序清单） |
+| GET | `/projects/{id}` | 项目详情聚合（阶段 / 诉求 / 议题 / 谈判轮次 / 文本 / 程序 / 交付物） |
+| PATCH | `/projects/{id}/phase` | 切换项目阶段（含过门检查） |
+| GET | `/projects/dashboard` | 项目数据看板 |
+| **阶段 A：商业诉求** | | |
+| GET | `/projects/{id}/demands` | 商业诉求清单 |
+| POST | `/projects/{id}/demands` | 新增商业诉求 |
+| POST | `/projects/{id}/demands/extract-from-text` | AI 从访谈记录 / 邮件抽取候选诉求 |
+| POST | `/projects/{id}/demands/check-completeness` | AI 提示遗漏维度 |
+| POST | `/projects/{id}/structure-options` | 添加交易结构候选方案 |
+| POST | `/projects/{id}/structure-options/compare` | AI 生成对比矩阵 |
+| GET/PUT | `/projects/{id}/position-matrix` | 立场矩阵 CRUD |
+| **阶段 B：谈判管理** | | |
+| GET | `/projects/{id}/negotiation-rounds` | 谈判轮次列表 |
+| POST | `/projects/{id}/negotiation-rounds` | 新建一轮谈判记录 |
+| POST | `/negotiation-rounds/{id}/minutes` | 上传 / 编辑会议纪要 |
+| GET | `/projects/{id}/issues?status=&priority=` | 议题追踪器 |
+| POST | `/projects/{id}/issues` | 新建议题 |
+| PATCH | `/issues/{id}` | 更新议题状态 / 立场 |
+| POST | `/issues/{id}/round-log` | 记录议题在某轮的变化 |
+| GET | `/projects/{id}/issues/timeline` | 议题演变时间线 |
+| POST | `/issues/{id}/ai-suggest` | AI 建议立场分析 / 让步路径 |
+| GET | `/projects/{id}/decisions` | 客户决策记录 |
+| POST | `/projects/{id}/decisions` | 登记客户决策 |
+| **阶段 C：成果固化** | | |
 | POST | `/projects/{id}/transaction-documents` | 创建交易文本 |
 | POST | `/transaction-documents/{id}/versions` | 上传新版本 |
 | GET | `/transaction-documents/{id}/redline?against={other_id}` | 红黑线对比 |
-| GET | `/projects/{id}/deliverables` | 交付物清单与状态 |
+| POST | `/transaction-documents/{id}/clauses/{label}/map` | 映射条款 ↔ 议题 |
+| GET | `/projects/{id}/text-closure-check` | 文本闭合检查（议题与条款一致性） |
+| **阶段 D：程序闭环** | | |
+| GET | `/projects/{id}/procedural-filings` | 程序清单 |
+| POST | `/projects/{id}/procedural-filings/generate` | 按项目类型自动生成程序清单 |
+| PATCH | `/procedural-filings/{id}` | 更新程序状态 |
+| POST | `/procedural-filings/{id}/upload-receipt` | 上传办理凭证 |
+| POST | `/procedural-filings/{id}/generate-application` | 生成申请书草稿 |
+| **横向能力** | | |
+| POST | `/projects/{id}/dd-checklists/generate` | 按项目类型生成尽调清单 |
+| GET/PATCH | `/dd-items/{id}` | 尽调条目操作 |
+| POST | `/dd-items/{id}/responses` | 上传对方回应 |
+| GET | `/projects/{id}/dd-checklists/{cl_id}/export` | 导出对方版（脱敏） |
+| POST | `/projects/{id}/dd-findings` | 登记尽调发现 |
+| POST | `/dd-findings/{id}/convert-to-demand` | 一键转为商业诉求 |
+| POST | `/dd-findings/{id}/convert-to-issue` | 一键转为谈判议题 |
+| POST | `/projects/{id}/dd-report/generate` | 生成尽调报告 |
 | POST | `/projects/{id}/legal-opinions` | 出具项目法律意见书 |
-| GET | `/projects/dashboard` | 项目数据看板 |
+| GET | `/projects/{id}/deliverables` | 交付物清单与状态 |
 
 ---
 
@@ -1345,18 +1716,20 @@ mc mirror --overwrite local/legal /Volumes/BackupSSD/minio/
 | Sprint 4 | 文件输出（**诉讼模板全套**：起诉/答辩/反诉/管辖异议/证据目录/证据三性/再审/执行/仲裁/规范性文件） | 2 周 |
 | Sprint 5 | 商务模块（CRM + 报价 + 合同 + 收款） | 1.5 周 |
 | Sprint 6 | 法律顾问服务模块（档案 + 服务 + **合同审查 + 法律意见 + 月度汇报 + 咨询响应** + 续约） | 2 周 |
-| Sprint 7 | **非诉法律项目（基础）**：项目档案 + 阶段管理 + 尽调清单 + 尽调过程 + 尽调发现 | 2 周 |
-| Sprint 8 | **非诉法律项目（成果输出）**：尽调报告 + 法律意见书 + 交易文本 + 配套文本 + 红黑线 + 交付物追踪 | 2 周 |
-| Sprint 9 | 虚拟法庭（外脑）+ 使用手册（内嵌帮助 + PDF 导出） | 2 周 |
-| Sprint 10 | UAT + 加固 + 培训交付 | 1.5 周 |
-| **合计** | **MVP 上线** | **18.5 周** |
+| Sprint 7 | **非诉项目 - 阶段 A 商业诉求**：项目档案 + 阶段管理 + **商业诉求清单** + 交易结构选项 + 立场矩阵 + 尽调清单 + 尽调发现 | 2 周 |
+| Sprint 8 | **非诉项目 - 阶段 B 谈判管理**：**谈判轮次** + **议题追踪器** + 立场分析 + **客户决策记录** + AI 议题转化 | 1.5 周 |
+| Sprint 9 | **非诉项目 - 阶段 C 成果固化**：交易文本 + 配套文本 + 红黑线 + **议题↔条款映射** + **文本闭合检查** + 尽调报告 + 法律意见书 | 2 周 |
+| Sprint 10 | **非诉项目 - 阶段 D 程序闭环**：程序清单 + 申请书生成 + 凭证归档 + 程序看板 ｜ + 项目交付物 dashboard | 1 周 |
+| Sprint 11 | 虚拟法庭（外脑）+ 使用手册（内嵌帮助 + PDF 导出） | 2 周 |
+| Sprint 12 | UAT + 加固 + 培训交付 | 1.5 周 |
+| **合计** | **MVP 上线** | **20 周** |
 
-> **说明**：
-> - 使用手册的 Markdown 内容编写在 Sprint 1-8 期间**与各模块开发并行**完成。
-> - 非诉法律项目模块占 Sprint 7-8 共 4 周，**首批仅深度支持 M&A（业主主战场）**；资产收购、IPO、私募、重组的项目类型在 v2 完善。
+> **说明**（v2.1 哲学校正）：
+> - 非诉模块按业主四个工作阶段（商业诉求 / 谈判 / 固化 / 程序）独立组织 Sprint，强化"律师价值在商业实质与谈判过程"，不只是输出文档。
+> - **Sprint 8 谈判管理**和 **Sprint 10 程序闭环**是 v2.1 新增的核心 Sprint。
+> - **若需压缩工期至 18-19 周**：可将"程序闭环"中的程序申请书生成移至 v2（保留清单与状态追踪），或将"虚拟法庭"暂缓至 v2。
 > - 客户档案（`clients` 表）在 Sprint 1 与诉讼仲裁案件管理一起建立，后续商务、顾问、非诉项目均复用。
-> - 文件输出 Sprint 4 加到 2 周，因为新增 7 类诉讼模板（反诉、管辖异议、证据目录与三性、再审、执行、仲裁、各类规范性文件）。
-> - **若需压缩工期至 16-17 周**：可将"虚拟法庭"或"非诉项目的配套文本部分"暂缓至 v2。
+> - 使用手册的 Markdown 内容编写在 Sprint 1-10 期间**与各模块开发并行**完成。
 
 ---
 
@@ -1420,5 +1793,6 @@ mc mirror --overwrite local/legal /Volumes/BackupSSD/minio/
 | v1.0 | 2026-05-10 | 初稿（8 大模块） |
 | v1.1 | 2026-05-10 | 商务报价 → 商务模块（CRM + 报价 + 合同 + 收款）；新增法律顾问模块；MVP 模块数 8 → 9；工期 12.5 → 14.5 周 |
 | v2.0 | 2026-05-10 | **重大架构调整**：按律所"三大业务线"（常法 / 诉讼仲裁 / 非诉项目）重新组织顶层结构；新增非诉法律项目模块（含尽调清单、尽调报告、法律意见书、交易文本、配套文本，业主以并购非诉见长）；扩展诉讼仲裁文书模板（新增反诉状、管辖权异议、证据目录、证据三性、再审、执行、仲裁、规范性文件等）；法律顾问模块明确 4 大子功能（合同审查 / 法律意见 / 定期汇报 / 法律咨询）；MVP 模块数 9 → 10；工期 14.5 → 18.5 周 |
+| v2.1 | 2026-05-10 | **非诉模块哲学校正**（业主明确律师价值在"理解并优化交易商业实质，清晰界定我方商业诉求，促进委托人商业利益实现"）：模块按业主四个工作阶段重组 —— **阶段 A 商业诉求拆解**（新增商业诉求清单、交易结构选项分析、立场矩阵）；**阶段 B 谈判过程管理**（新增谈判轮次、议题追踪器、客户决策记录）；**阶段 C 成果固化**（新增议题↔条款映射、文本闭合检查）；**阶段 D 程序闭环**（新增工商/税务/外汇/反垄断/行业审批等程序清单与办理追踪）。数据库新增 9 张表（commercial_demands、structure_options、position_matrix、negotiation_rounds、negotiation_issues、issue_round_log、client_decisions、issue_clause_mapping、procedural_filings）。工期 18.5 → 20 周 |
 
 **评审记录**：（待评审后追加）
