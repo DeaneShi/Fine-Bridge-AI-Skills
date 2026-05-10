@@ -21,9 +21,10 @@
 | 3 | **卷宗上传** | P0 | 文件存储、OCR、版本管理 |
 | 4 | **智能问答** | P0 | Claude 驱动，结合卷宗上下文 |
 | 5 | **文件输出** | P0 | 调用 Skill 模板生成 Word/PDF |
-| 6 | **商务报价** | P1 | 复用现有 quotation-review Skill |
-| 7 | **虚拟法庭** | P1 | Claude 多角色扮演的庭审模拟 |
-| 8 | **使用手册** | P0 | 内嵌帮助中心 + 上下文帮助 + 导出 PDF 用户手册 |
+| 6 | **商务模块** | P1 | 客户档案 + 商务报价 + 委托合同 + 收款台账 |
+| 7 | **法律顾问模块** | P1 | 常法/专法顾问单位档案、服务记录、续约提醒、月度报告 |
+| 8 | **虚拟法庭** | P1 | Claude 多角色扮演的庭审模拟 |
+| 9 | **使用手册** | P0 | 内嵌帮助中心 + 上下文帮助 + 导出 PDF 用户手册 |
 
 **二期**：日程提醒、利益冲突检查、审计日志、法律检索接入、客户门户、知识库、计费、财务。
 
@@ -277,20 +278,104 @@ response = client.messages.create(
 - 自动校验：金额、日期、人名前后一致（基于规则引擎）
 - 生成历史归档到案件目录
 
-### 3.6 商务报价（Quotation）
+### 3.6 商务模块（Commercial Module）
 
-**与现有 `quotation-review` Skill 协同**：本所自身对客户报价时，复用同一份审查框架。
+**业务范围**：把"客户关系 + 报价 + 委托合同 + 收款"这一商务全链路集中到一个模块，避免散落在 Excel、微信和合伙人脑海里。
 
-**字段**：
-- 基础律师费（计时/阶段/固定）
-- 风险代理（合规校验：禁用案由自动拦截）
-- 预估办案成本（差旅/调档/鉴定/保全担保）
-- 折扣与备注
-- 报价有效期
+**子功能**：
 
-**输出**：标准报价单 PDF + 电子签接入（二期：DocuSign / 法大大）。
+#### 3.6.1 客户管理（CRM）
+- 客户档案：自然人 / 法人（含统一社会信用代码、行业、规模）
+- 客户分类：潜在客户 / 正式客户 / 顾问客户 / 历史客户
+- 客户来源：转介绍 / 自然客流 / 老客户 / 营销活动
+- 客户级别：VIP / 一般 / 观察（用于服务优先级与报价折扣策略）
+- 客户与案件 / 顾问单位 / 报价 / 收款的关联视图
 
-### 3.7 虚拟法庭（Virtual Court）
+#### 3.6.2 商务报价（Quotation，原有功能保留）
+- 三种计费模式：计时 / 固定 / 阶段
+- 风险代理：禁用案由（婚姻、刑事、行政、劳动报酬追索）系统层强制拦截
+- 办案成本预估：差旅 / 调档 / 鉴定 / 保全担保
+- 报价单 PDF 生成；状态：草稿 / 已发送 / 已接受 / 已拒绝 / 过期
+- 与现有 `quotation-review` Skill 协同复用审查框架
+
+#### 3.6.3 委托代理合同（Engagement Letter）
+- 模板：民事代理 / 刑事辩护 / 行政代理 / 法律顾问 / 专项顾问 / 仲裁代理
+- 字段自动填充：当事人、代理事项、收费、期限、双方权利义务
+- 输出 .docx + .pdf；可走电子签（二期接 DocuSign / 法大大）
+- 合同与报价的状态联动（报价已接受 → 自动生成合同草稿）
+
+#### 3.6.4 收款台账与发票（Receivables）
+- 应收登记：合同金额 / 已收金额 / 应收余额 / 账期
+- 收款记录：日期、金额、方式（转账 / 现金 / 票据）、凭证编号
+- 催收提醒：账期到期前 7 日 / 当日提醒
+- 发票登记（一期手工录入：开票日期、发票号、税率、金额）；票据系统集成在二期
+
+**与其他模块的关系**：
+- 与**案件管理**：案件创建时强制选择客户；案件结案时自动同步收款进度
+- 与**法律顾问模块**：顾问客户复用商务模块的客户档案与收款台账
+- 与**账户管理**：合伙人审批高额报价 / 折扣（设可配置阈值）
+
+### 3.7 法律顾问模块（Legal Counsel / Advisor Module）
+
+**为什么要独立于案件管理**：
+- 顾问业务是**长期持续服务**（年度续约），不是一次性案件
+- 服务以"咨询条数 / 工时"计量，不是"诉讼请求"
+- 客户期待**月度服务报告**作为合同履约证明
+- 续约管理涉及合同到期预警、收费调整谈判
+- 顾问业务的咨询质量与案件办理质量同等重要，需要独立沉淀
+
+**子功能**：
+
+#### 3.7.1 顾问单位档案
+- 基本信息：单位名称、统一社会信用代码、行业、规模、对接人（含 KP 与日常联系人）
+- 顾问类型：常年法律顾问 / 专项法律顾问 / 项目顾问
+- 服务期限：起止日期、自动续约条款
+- 服务范围与限额：每月咨询次数上限、合同审查份数上限、上门次数上限
+- 年度费用与付款节奏（年付 / 半年付 / 季付）
+- 主办律师与协办团队
+
+#### 3.7.2 服务记录登记（Service Log）
+律师每次为顾问单位提供服务后，必须登记一条服务记录：
+- 服务日期与时长（工时）
+- 服务类型：电话咨询 / 邮件答复 / 现场会议 / 合同审查 / 法律意见 / 培训 / 文件起草
+- 服务摘要（客户可见）+ 内部备注（仅本所可见）
+- 关联文件（合同、意见书、邮件）
+- 是否计入服务限额、是否触发额外计费
+
+#### 3.7.3 月度服务报告（Monthly Report）
+- 系统每月 1 日自动汇总上月服务记录，生成《XXX 顾问单位 YYYY 年 MM 月服务报告》
+- 报告内容：服务次数统计、按类型分布、主要服务事项摘要、关联文件清单、限额使用情况、下月建议
+- 输出：PDF（含本所抬头与盖章位）
+- 客户对接人邮箱自动接收（可关闭）
+
+#### 3.7.4 合同审查工作流
+- 顾问单位上传待审合同 → 自动调用 `quotation-review` Skill 风格的审查
+- AI 输出：风险点清单（高/中/低）、修改建议、关键条款标注
+- 律师在系统内修订并出具《审查意见》
+- 审查记录自动计入服务记录
+
+#### 3.7.5 法律咨询响应
+- 顾问单位提交咨询 → 工单形式分配律师
+- 律师可调用智能问答辅助（与个案 AI 问答区分上下文）
+- 答复发送邮件 + 系统留底，自动计入服务记录
+
+#### 3.7.6 续约管理
+- 合同到期前 60 / 30 / 7 日自动提醒主办律师
+- 续约工作流：年度服务复盘 → 收费方案 → 续约谈判 → 新合同生成
+- 流失预警：服务记录数明显下降的顾问单位主动标红
+
+#### 3.7.7 顾问业务数据看板
+- 在管顾问单位数 / 总年费 / 续约率 / 服务饱和度
+- 各律师的顾问业务量
+- TOP 10 高价值顾问单位
+
+**与其他模块的关系**：
+- **案件管理**：顾问单位偶有诉讼需求时，可在案件中标注"由顾问业务转化"，关联回顾问档案
+- **商务模块**：顾问客户档案、合同、收款均复用商务模块
+- **智能问答**：顾问咨询走智能问答（限定顾问单位上下文）
+- **文件输出**：合同审查意见、法律意见书走通用文件输出
+
+### 3.8 虚拟法庭（Virtual Court）
 
 一期实现为**多角色文字流式对话**，作为庭审准备的演练工具。
 
@@ -312,7 +397,7 @@ response = client.messages.create(
 
 **二期**：接 TTS（如 ElevenLabs）做语音化身。
 
-### 3.8 使用手册（User Manual / Help Center）
+### 3.9 使用手册（User Manual / Help Center）
 
 **双形态交付**：
 1. **系统内嵌帮助中心**：`/help` 路由，可全文检索、按模块导航、按角色推荐
@@ -381,7 +466,17 @@ users ──┬── cases ──┬── case_files
         │           ├── case_timeline
         │           ├── conversations ── messages
         │           ├── documents (输出文件)
-        │           └── quotations
+        │           ├── quotations
+        │           └── engagement_letters (委托代理合同)
+        │
+        ├── clients ──┬── quotations
+        │             ├── engagement_letters
+        │             ├── receivables ── payments
+        │             └── advisor_clients (顾问关系)
+        │
+        ├── advisor_clients ──┬── advisor_services (服务记录)
+        │                     ├── advisor_renewals
+        │                     └── advisor_monthly_reports
         │
         └── audit_logs (二期)
 ```
@@ -506,18 +601,139 @@ CREATE TABLE documents (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- 客户（商务模块的客户档案，与诉讼当事人 parties 区分）
+CREATE TABLE clients (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type TEXT NOT NULL CHECK (type IN ('person','org')),
+  name TEXT NOT NULL,
+  industry TEXT,
+  scale TEXT,                               -- small/medium/large
+  source TEXT,                              -- referral/inbound/老客户/marketing
+  level TEXT DEFAULT 'normal',              -- vip/normal/watch
+  status TEXT DEFAULT 'lead',               -- lead/active/advisor/historical
+  primary_contact JSONB,                    -- 姓名/职务/电话/邮箱
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- 报价
 CREATE TABLE quotations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  case_id UUID REFERENCES cases(id) ON DELETE CASCADE,
-  client_party_id UUID REFERENCES parties(id),
-  fee_model TEXT,                           -- hourly/fixed/contingency
+  case_id UUID REFERENCES cases(id) ON DELETE SET NULL,
+  client_id UUID REFERENCES clients(id),
+  fee_model TEXT,                           -- hourly/fixed/staged/contingency
   base_fee NUMERIC(12,2),
   contingency_pct NUMERIC(5,2),
   estimated_costs JSONB,
+  discount_pct NUMERIC(5,2),
   total NUMERIC(12,2),
   valid_until DATE,
-  status TEXT DEFAULT 'draft',              -- draft/sent/accepted/rejected
+  status TEXT DEFAULT 'draft',              -- draft/sent/accepted/rejected/expired
+  approved_by UUID REFERENCES users(id),    -- 高额折扣需合伙人审批
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 委托代理合同
+CREATE TABLE engagement_letters (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  case_id UUID REFERENCES cases(id) ON DELETE SET NULL,
+  client_id UUID REFERENCES clients(id),
+  quotation_id UUID REFERENCES quotations(id),
+  template_type TEXT,                       -- civil/criminal/admin/advisor/special/arbitration
+  storage_key TEXT,                         -- 生成的合同文件
+  signed_at DATE,
+  start_date DATE,
+  end_date DATE,
+  total_fee NUMERIC(12,2),
+  status TEXT DEFAULT 'draft',              -- draft/sent/signed/terminated
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 应收账款
+CREATE TABLE receivables (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID REFERENCES clients(id),
+  case_id UUID REFERENCES cases(id) ON DELETE SET NULL,
+  engagement_letter_id UUID REFERENCES engagement_letters(id),
+  total_amount NUMERIC(12,2),
+  paid_amount NUMERIC(12,2) DEFAULT 0,
+  due_date DATE,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 收款记录
+CREATE TABLE payments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  receivable_id UUID REFERENCES receivables(id) ON DELETE CASCADE,
+  amount NUMERIC(12,2) NOT NULL,
+  paid_at DATE NOT NULL,
+  method TEXT,                              -- transfer/cash/check
+  voucher_no TEXT,
+  invoice_no TEXT,
+  invoice_date DATE,
+  recorded_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 顾问单位档案
+CREATE TABLE advisor_clients (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID REFERENCES clients(id) NOT NULL,
+  advisor_type TEXT NOT NULL,               -- annual/special/project
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  auto_renewal BOOLEAN DEFAULT FALSE,
+  annual_fee NUMERIC(12,2),
+  payment_schedule TEXT,                    -- annual/semi-annual/quarterly
+  service_quotas JSONB,                     -- {consulting:50/月, contract_review:10/月, on-site:4/年}
+  scope TEXT,                               -- 服务范围描述
+  lead_lawyer_id UUID REFERENCES users(id),
+  team_lawyer_ids UUID[],
+  status TEXT DEFAULT 'active',             -- active/expired/terminated
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 顾问服务记录
+CREATE TABLE advisor_services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  advisor_client_id UUID REFERENCES advisor_clients(id) ON DELETE CASCADE,
+  service_date DATE NOT NULL,
+  service_type TEXT NOT NULL,               -- phone/email/onsite/contract_review/opinion/training/drafting
+  duration_minutes INT,
+  summary TEXT NOT NULL,                    -- 客户可见
+  internal_notes TEXT,                      -- 仅本所可见
+  related_file_ids UUID[],                  -- 关联 case_files / documents
+  count_against_quota BOOLEAN DEFAULT TRUE,
+  extra_billable BOOLEAN DEFAULT FALSE,
+  served_by UUID REFERENCES users(id),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 顾问月度报告
+CREATE TABLE advisor_monthly_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  advisor_client_id UUID REFERENCES advisor_clients(id) ON DELETE CASCADE,
+  year INT NOT NULL,
+  month INT NOT NULL,
+  storage_key TEXT,                         -- PDF 文件
+  stats JSONB,                              -- {total_services, by_type, quota_usage}
+  status TEXT DEFAULT 'draft',              -- draft/sent
+  sent_at TIMESTAMPTZ,
+  UNIQUE (advisor_client_id, year, month)
+);
+
+-- 顾问续约
+CREATE TABLE advisor_renewals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  advisor_client_id UUID REFERENCES advisor_clients(id) ON DELETE CASCADE,
+  current_end_date DATE NOT NULL,
+  alert_60d_sent BOOLEAN DEFAULT FALSE,
+  alert_30d_sent BOOLEAN DEFAULT FALSE,
+  alert_7d_sent BOOLEAN DEFAULT FALSE,
+  proposed_new_fee NUMERIC(12,2),
+  status TEXT DEFAULT 'pending',            -- pending/negotiating/renewed/lost
+  notes TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 ```
@@ -589,6 +805,35 @@ data: {"usage":{"input_tokens":1234,"output_tokens":567,"cache_read_input_tokens
 | POST | `/cases/{id}/mock-trials` | 新建模拟庭审 |
 | POST | `/mock-trials/{id}/turn` | 律师发言 → AI 多角色响应 |
 | GET | `/mock-trials/{id}/report` | 复盘报告 |
+
+### 5.6 商务模块
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/clients?status=&level=&q=` | 客户列表 |
+| POST | `/clients` | 创建客户 |
+| GET | `/clients/{id}` | 客户详情（聚合：报价/合同/收款/案件/顾问） |
+| POST | `/quotations` | 创建报价 |
+| POST | `/quotations/{id}/send` | 发送给客户 |
+| POST | `/quotations/{id}/accept` | 客户接受 → 自动生成合同草稿 |
+| POST | `/engagement-letters` | 生成委托代理合同 |
+| POST | `/engagement-letters/{id}/sign` | 标记签订 |
+| GET | `/receivables?overdue=true` | 应收账款（可筛选逾期） |
+| POST | `/receivables/{id}/payments` | 登记收款 |
+
+### 5.7 法律顾问模块
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/advisor-clients?status=&lead=` | 顾问单位列表 |
+| POST | `/advisor-clients` | 创建顾问关系（基于已有 client） |
+| GET | `/advisor-clients/{id}` | 详情（含服务统计、限额使用） |
+| POST | `/advisor-clients/{id}/services` | 登记一条服务记录 |
+| GET | `/advisor-clients/{id}/services?from=&to=&type=` | 服务记录查询 |
+| POST | `/advisor-clients/{id}/reports/{year}/{month}/generate` | 生成月度报告 |
+| POST | `/advisor-clients/{id}/reports/{report_id}/send` | 发送报告给客户 |
+| POST | `/advisor-clients/{id}/contract-reviews` | 提交合同审查 |
+| POST | `/advisor-clients/{id}/queries` | 法律咨询工单 |
+| GET | `/advisor-renewals?within_days=60` | 续约预警列表 |
+| GET | `/advisor-clients/dashboard` | 顾问业务数据看板 |
 
 ---
 
@@ -713,13 +958,17 @@ mc mirror --overwrite local/legal /Volumes/BackupSSD/minio/
 | Sprint 2 | 卷宗上传 + OCR + 全文搜索 | 1.5 周 |
 | Sprint 3 | 智能问答（含 Tool Use + Caching） | 2 周 |
 | Sprint 4 | 文件输出（模板 + 自由生成） | 1.5 周 |
-| Sprint 5 | 商务报价 | 1 周 |
-| Sprint 6 | 虚拟法庭 | 1.5 周 |
-| Sprint 7 | 使用手册（内嵌帮助 + PDF 导出 + 上下文帮助） | 1 周 |
-| Sprint 8 | UAT + 加固 + 培训交付 | 1.5 周 |
-| **合计** | **MVP 上线** | **12.5 周** |
+| Sprint 5 | 商务模块（CRM + 报价 + 合同 + 收款） | 1.5 周 |
+| Sprint 6 | 法律顾问模块（档案 + 服务 + 报告 + 续约） | 1.5 周 |
+| Sprint 7 | 虚拟法庭 | 1.5 周 |
+| Sprint 8 | 使用手册（内嵌帮助 + PDF 导出 + 上下文帮助） | 1 周 |
+| Sprint 9 | UAT + 加固 + 培训交付 | 1.5 周 |
+| **合计** | **MVP 上线** | **14.5 周** |
 
-> **说明**：使用手册的 Markdown 内容编写在 Sprint 1-6 期间**与各模块开发并行**完成（每个模块 Owner 同步产出对应章节），Sprint 7 集中做帮助中心 UI、检索、PDF 导出和上下文跳转。
+> **说明**：
+> - 使用手册的 Markdown 内容编写在 Sprint 1-7 期间**与各模块开发并行**完成（每个模块 Owner 同步产出对应章节），Sprint 8 集中做帮助中心 UI、检索、PDF 导出和上下文跳转。
+> - 商务模块与法律顾问模块共用客户档案（`clients` 表），先做商务模块再做顾问模块，复用度高。
+> - 若需压缩工期，可考虑将商务模块拆为"报价（P0）+ 其他（P1）"，仅 P0 部分纳入 MVP，其余移至二期。
 
 ---
 
@@ -775,4 +1024,12 @@ mc mirror --overwrite local/legal /Volumes/BackupSSD/minio/
 ---
 
 **文档维护**：Fine Bridge Technology (Thailand) Co., Ltd.
+
+**修订历史**：
+
+| 版本 | 日期 | 修订内容 |
+| --- | --- | --- |
+| v1.0 | 2026-05-10 | 初稿（8 大模块） |
+| v1.1 | 2026-05-10 | 商务报价 → 商务模块（CRM + 报价 + 合同 + 收款）；新增法律顾问模块；MVP 模块数 8 → 9；工期 12.5 → 14.5 周（Sprint 5 商务模块、Sprint 6 法律顾问、Sprint 9 UAT） |
+
 **评审记录**：（待评审后追加）
