@@ -1,0 +1,9 @@
+# 不要把秘密和下载产物推到 git
+.env
+config.json
+storage_state.json
+downloads/
+__pycache__/
+*.pyc
+.venv/
+venv/

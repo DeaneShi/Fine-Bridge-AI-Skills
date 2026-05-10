@@ -1,0 +1,16 @@
+{
+  "login_url": "https://example.com/login",
+  "download_page_url": "https://example.com/files",
+  "selectors": {
+    "username_input": "input[name='username']",
+    "password_input": "input[name='password']",
+    "submit_button": "button[type='submit']",
+    "login_success_indicator": "a:has-text('Logout')",
+    "download_links": "a[href$='.pdf'], a[href$='.xlsx'], a.download"
+  },
+  "download_dir": "./downloads",
+  "storage_state_file": "./storage_state.json",
+  "headless": false,
+  "wait_for_captcha_seconds": 0,
+  "max_files": 0
+}
