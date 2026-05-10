@@ -40,15 +40,22 @@
 | [`../skills/legal-firm-agent/SKILL.md`](../skills/legal-firm-agent/SKILL.md) | 律师事务所智能体的核心 Skill，定义 AI 八阶段工作流与必守原则 |
 
 ### 工作流模板（律师手工或 AI 辅助填写）
+
+**业务线 ② 诉讼仲裁案件代理**
 | 文件 | 阶段 |
 | --- | --- |
 | [`../templates/legal-case-intake.md`](../templates/legal-case-intake.md) | ① 接案 |
 | [`../templates/legal-case-analysis.md`](../templates/legal-case-analysis.md) | ② 案情梳理 + ③ 法律检索 |
 | [`../templates/legal-evidence-checklist.md`](../templates/legal-evidence-checklist.md) | ④ 证据组织 |
-| [`../templates/legal-document-drafting.md`](../templates/legal-document-drafting.md) | ⑤ 文书起草 |
+| [`../templates/legal-document-drafting.md`](../templates/legal-document-drafting.md) | ⑤ 司法文书全套（v2.0 扩展：反诉/管辖异议/证据目录/三性/再审/执行/保全/仲裁/规范性文件） |
 | [`../templates/legal-trial-preparation.md`](../templates/legal-trial-preparation.md) | ⑥ 庭审准备 |
 | [`../templates/legal-case-tracking.md`](../templates/legal-case-tracking.md) | ⑦ 案件跟踪 |
 | [`../templates/legal-case-closure.md`](../templates/legal-case-closure.md) | ⑧ 结案归档 |
+
+**业务线 ③ 非诉法律项目（v2.0 新增）**
+| 文件 | 内容 |
+| --- | --- |
+| [`../templates/legal-non-litigation-project.md`](../templates/legal-non-litigation-project.md) | 项目立项 / 尽调清单（M&A 通用版）/ 资料请求函 / 尽调报告结构化模板 / SPA 骨架 / 配套文本清单 / 项目交付物追踪表 / 自检清单 |
 
 ### 用户手册（开发期编写中）
 
@@ -81,14 +88,15 @@ user-manual/                     # 系统内嵌帮助中心源文件
 
 | 项 | 状态 |
 | --- | --- |
-| 需求说明 | ✅ v1.1 待评审 |
-| 架构设计 | ✅ v1.1 待评审（含 9 大模块） |
-| 验收与培训 | ✅ v1.1 待评审 |
-| 合伙人评审包 | ✅ v1.1 等待合伙人评审（含 14 项决策） |
-| Claude Skill | ✅ v1.0 已交付 |
-| 工作流模板 | ✅ 7 份已交付 |
+| 需求说明 | ✅ v2.0 待评审（按三大业务线重组） |
+| 架构设计 | ✅ v2.0 待评审（含 10 大模块） |
+| 验收与培训 | ✅ v2.0 待评审 |
+| 合伙人评审包 | ✅ v2.0 等待合伙人评审（含 17 项决策） |
+| Claude Skill | ✅ v1.1 含三大业务线说明 |
+| 工作流模板（诉讼仲裁） | ✅ 7 份已交付（v2.0 扩展诉讼文书：反诉/管辖异议/证据目录/三性/再审/执行/保全/仲裁/规范性文件） |
+| 工作流模板（非诉项目） | ✅ 1 份已交付（尽调清单/尽调报告/SPA骨架/配套文本） |
 | 用户手册 | ⬜ 待开发期编写 |
-| 系统开发 | ⬜ 未启动（合伙人签字后 + 14.5 周） |
+| 系统开发 | ⬜ 未启动（合伙人签字后 + 18.5 周） |
 
 ---
 
